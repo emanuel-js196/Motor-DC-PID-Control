@@ -1,8 +1,8 @@
 # Autores 
-Aguirre, Emanuel
-Fernandez, Gonzalo
-Portugal Rios, Julian
-Russo, Pablo
+- Aguirre, Emanuel
+- Fernandez, Gonzalo
+- Portugal Rios, Julian
+- Russo, Pablo
 
 # Motor DC / PID Control
 Como soporte para el trabajo final de ingeniería "REINGENIERÍA DE UN SISTEMA DE RESCATE DE PERSONAS EN AMBIENTES ACUÁTICOS PARA EMBARCACIONES (Aguirre, Russo)"
