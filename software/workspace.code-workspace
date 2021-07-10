@@ -1,0 +1,22 @@
+{
+	"folders": [
+		{
+			"path": "esp32"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"random": "cpp",
+			"functional": "cpp",
+			"array": "cpp",
+			"cstring": "cpp",
+			"*.tcc": "cpp",
+			"system_error": "cpp",
+			"regex": "cpp",
+			"tuple": "cpp",
+			"type_traits": "cpp",
+			"utility": "cpp",
+			"cmath": "cpp"
+		}
+	}
+}

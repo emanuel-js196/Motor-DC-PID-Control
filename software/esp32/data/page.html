@@ -1,0 +1,321 @@
+<!DOCTYPE HTML><html>
+<head>
+  <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <style>
+    body {
+      width: 100%;
+      height: 100vh;
+      margin: 0 auto;
+      background-color: black;
+      color: blanchedalmond;
+    }
+    h2 {
+      font-family: Arial;
+      font-size: 2.5rem;
+      text-align: center;
+      margin: 0 auto;
+    }
+    .wrapper{
+      width: 90%;
+      height: 100vh;
+      margin: 0 auto;
+
+      display: grid;
+      grid-gap: 1em;
+
+      grid-template-areas:  "header header header"
+                            "current set_speed power"
+                            "voltage  real_speed duty_cl"
+                            "graph graph data_series_time"
+                            "rotation speed_set start_stop";
+
+      grid-template-rows: 3em 1fr 1fr 3fr 3fr;
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .title{
+      grid-area: header;
+    }
+    .variable{
+      background-color: #04AA6D;
+      height: 100%;
+      color: aliceblue;
+      font-size: large;
+      text-align: center;
+      padding-top: 3px;
+    }
+    .variable h2{
+      margin: 0 auto;
+    }
+    #current{
+      grid-area: current;
+    }
+    #voltage{
+      grid-area: voltage;
+    }
+    #set_speed{
+      grid-area: set_speed;
+    }
+    #real_speed{
+      grid-area: real_speed;
+    }
+    #power{
+      grid-area: power;
+    }
+    #duty_cl{
+      grid-area: duty_cl;
+    }
+    #speed-chart{
+      grid-area: graph;
+    }
+
+    #data_series_time{
+      grid-area: data_series_time;
+    }
+    .btns{
+      text-align: center;
+    }
+ 
+    .btns h3,h4 {
+      margin: 0 auto
+    }
+    #data_series_time > button{
+      height: 25%;
+    }
+    .btns button{
+      background-color: #04AA6D; /* Green background */
+      color: white; /* White text */
+      height: 40%;
+      cursor: pointer; /* Pointer/hand icon */
+      width: 40%; /* Set a width if needed */
+      display: block; /* Make the buttons appear below each other */
+      margin: 0 auto;
+    }
+    .btns button:not(:last-child) {
+      border-bottom: none; /* Prevent double borders */
+    }
+    /* Add a background color on hover */
+    .btns button:hover {
+      background-color: #3e8e41;
+    }
+    #stop{
+      background-color: rgb(243, 0, 49);
+    }
+    #stop:hover{
+      background-color: rgb(161, 16, 45);
+    }
+    #sentido_giro{
+      grid-area: rotation;
+    }
+    #speed_change{
+      grid-area: speed_set;
+    }
+    #start_stop{
+      grid-area: start_stop;
+    }
+  </style>
+
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+
+</head>
+<body>
+  <div class="wrapper">
+    <h2 class="title">DC MOTOR CONTROL PANEL</h2>
+
+    <div class="variable">
+      <span>Corriente</span>
+      <h2 id="current">-</h2>
+      <h2>A</h2>
+    </div>
+
+    <div class="variable">
+      <span>Tensión</span>
+      <h2 id="voltage">-</h2>
+      <h2>V</h2>
+    </div>
+
+    <div class="variable" >
+      <span>Velocidad set</span>
+      <h2 id="set_speed">-</h2>
+      <h2>RPM</h2>
+    </div>
+    <div class="variable" >
+      <span>Velocidad real</span>
+      <h2 id="real_speed"></h2>
+      <h2>RPM</h2>
+    </div>
+    <div class="variable" id="power">
+      <span>Potencia</span>
+      <h2>-</h2>
+      <h2>W</h2>
+    </div>
+
+    <div class="variable">
+      <span>Duty Cicle</span>
+      <h2 id="duty_cl">-</h2>
+      <h2>%</h2>
+    </div>
+
+    <div class="container" id="speed-chart"></div>
+
+    <div class="btns" id="data_series_time">
+      <h4>Control PID</h4>
+      <label for="fkp">Set speed (RPM)</label><br>
+      <input type="text" id="pid_set_rpm" name="pid_set_rpm" value="" onkeypress="pid_set(event)"><br>
+      <label for="fkp">Proportional</label><br>
+      <input type="text" id="fkp" name="fkp" value="" onkeypress="pid_set(event)"><br>
+      <label for="fki">Integral</label><br>
+      <input type="text" id="fki" name="fki" value="" onkeypress="pid_set(event)"><br>
+      <label for="fkd">Derivative</label><br>
+      <input type="text" id="fkd" name="fkd" value="" onkeypress="pid_set(event)"><br>
+    </div>
+
+    <div class="btns" id="sentido_giro">
+      <h4>Sentido de giro</h4>
+      <button onclick="pressed_button('Rot_CW');">Horario</button>
+      <button onclick="pressed_button('Rot_CCW');">Anti-horario</button>
+    </div>
+
+    <div class="btns" id="speed_change">
+      <h3>Set de Velocidad</h3>
+     <button onclick="pressed_button('Vset_UP');">
+        <h3>UP</h3>
+        <i class="fas fa-arrow-circle-up" style="font-size: 3em;"></i>
+      </button>
+      <button onclick="pressed_button('Vset_DOWN');">
+        <h3>DOWN</h3>
+        <i class="fas fa-arrow-circle-down" style="font-size: 3em;"></i>
+      </button>
+    </div>
+
+    <div class="btns" id="start_stop">
+      <h3>Arranque/Parada</h3>
+      <button onclick="pressed_button('START');">Start</button>
+      <button onclick="pressed_button('STOP');" id="stop">STOP</button>
+    </div>
+
+  </div>
+</body>
+<script>
+  var gateway = `ws://${window.location.hostname}/ws`;
+  var websocket;
+
+  function initWebSocket() {
+    console.log('Trying to open a WebSocket connection...');
+    websocket = new WebSocket(gateway);
+    websocket.onopen    = onOpen;
+    websocket.onclose   = onClose;
+    websocket.onmessage = onMessage; // <-- add this line
+  }
+
+  function onOpen(event) {
+    console.log('Connection opened');
+  }
+
+  function onClose(event) {
+    console.log('Connection closed');
+    setTimeout(initWebSocket, 2000);
+  }
+
+  let msg_amount = 0;
+
+  function onMessage(event) {
+    let json_obj = JSON.parse(event.data);
+
+    msg_amount++;
+
+    feed_webpage(json_obj);
+  }
+
+  function feed_webpage (data){
+    console.log("feed_webpage:");
+    console.log(data);
+    document.getElementById('current').innerHTML = data.current.toFixed(2);
+
+    // If -1 was measured speed, change to Not Running
+    if (data.v_mes == "-1"){
+      document.getElementById('real_speed').innerHTML = "Not Running";
+    }else{
+      document.getElementById('real_speed').innerHTML = data.v_mes;
+    }
+
+    // Update Set Speed
+    document.getElementById('set_speed').innerHTML = data.v_set;
+
+    // Update electrical variables
+    document.getElementById('duty_cl').innerHTML = data.pwm_dc;
+    
+    //Update PID constants
+    document.getElementById('pid_set_rpm').defaultValue = data.v_set;
+    document.getElementById('fkp').defaultValue = data.kp;
+    document.getElementById('fki').defaultValue = data.ki;
+    document.getElementById('fkd').defaultValue = data.kd;
+
+    // Real time chart
+    if(msg_amount > 40) {
+      chartT.series[0].addPoint([msg_amount, data.v_mes], true, true, true);
+      chartT.series[1].addPoint([msg_amount, data.v_set], true, true, true);
+    } else {
+      chartT.series[0].addPoint([msg_amount, data.v_mes], true, false, true);
+      chartT.series[1].addPoint([msg_amount, data.v_set], true, false, true);
+    }
+  }
+
+  window.addEventListener('load', onLoad);
+
+  function onLoad(event) {
+    initWebSocket();
+  }
+
+  function pid_set(event){
+    var keyPressed = event.keyCode || event.which;
+    if (keyPressed === 13) {
+
+      event.preventDefault();
+
+      var input_id = event.target.name
+      var value = document.getElementById(input_id).value
+      
+      if (isNaN(value)){
+        console.log("Not numeric: " + value + " in " + input_id);
+      }else{
+        var send_obj = input_id + "/" + value;
+        websocket.send(send_obj);
+        console.log(send_obj);
+      }
+    }
+  }
+
+  function pressed_button (btn) {
+    console.log("[Client]: Pressed " + btn + "button");
+    websocket.send(btn);
+  }
+
+  var chartT = new Highcharts.Chart({
+  chart:{ renderTo : 'speed-chart' },
+  title: { text: 'Velocidad en tiempo real' },
+  series: [{
+    showInLegend: true,
+    data: []
+  }],
+  plotOptions: {
+    line: { animation: false,
+      dataLabels: { enabled: true }
+    },
+    series: [{ color: '#059e8a' },{ color: '#ff0000' }]
+  },
+  rangeSelector: {
+    enabled: false
+  },
+  xAxis: { text: 'Time (s)', type: 'datetime',
+    dateTimeLabelFormats: { second: '%S' }
+  },
+  yAxis: {
+    title: { text: 'Speed (RPM)' }
+  },
+    credits: { enabled: false }
+  });
+
+ </script>
+
+</html>
