@@ -22,6 +22,7 @@ Se utilizará un microcontrolador ESP32, SoC de la familia Tensilica Xtensa LX6 
 Se dispone de un motor 775-24v, de escobillas, el cual posee un rotor, que será nuestra planta y su velocidad la variable a controlar.
 
 # Pruebas de funcionamiento
+- https://youtu.be/jQIFR5dAHVU
 - https://youtu.be/mapwY9u-rUo
 - https://youtu.be/vMiuXQFB3TM
-- https://youtu.be/jQIFR5dAHVU
+
